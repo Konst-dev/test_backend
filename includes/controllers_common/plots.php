@@ -1,6 +1,7 @@
 <?php
 
-function controller_plots() {
+function controller_plots()
+{
     // vars
     $offset = isset($_GET['offset']) ? flt_input($_GET['offset']) : 0;
     $search = $_GET['search'] ?? '';

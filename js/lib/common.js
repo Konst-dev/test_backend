@@ -7,7 +7,7 @@ function add_event(el, types, handler, useCapture) {
     // for IE
     if (el.setInterval && el !== window) el = window;
     // add listeners
-    types.split(/\s+/).forEach(function(type) {
+    types.split(/\s+/).forEach(function (type) {
         if (el.addEventListener) el.addEventListener(type, handler, useCapture);
         else if (el.attachEvent) el.attachEvent('on' + type, handler);
     });
@@ -91,6 +91,7 @@ function set_style(el, name, value) {
 // REQUESTS
 
 function request(data, callback) {
+    console.log(data);
     let xhr = new XMLHttpRequest();
     if (!xhr) return;
     xhr.open('POST', '/call.php', true);
@@ -138,7 +139,7 @@ function on_click(el) {
 // POLYFILLS
 
 if (!Element.prototype.closest) {
-    Element.prototype.closest = function(css) {
+    Element.prototype.closest = function (css) {
         let node = this;
         while (node) {
             if (node.matches(css)) return node;
@@ -156,7 +157,7 @@ if (!Element.prototype.matches) {
 }
 
 if (window.NodeList && !NodeList.prototype.forEach) {
-    NodeList.prototype.forEach = function(callback, thisArg) {
+    NodeList.prototype.forEach = function (callback, thisArg) {
         thisArg = thisArg || window;
         for (var i = 0; i < this.length; i++) {
             callback.call(thisArg, this[i], i, this);

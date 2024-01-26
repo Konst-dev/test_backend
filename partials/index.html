@@ -1,5 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Admin</title>
@@ -13,14 +14,19 @@
     <script type="text/javascript" src="/js/common.js?1"></script>
     <!-- Global Vars -->
     <script type="text/javascript">
-        var global = {literal}{{/literal}
-            {if $global.path == 'plots'}
-            offset: {$offset}
-            {/if}
-        {literal}}{/literal}
+        var global = { literal }{{/literal}
+        { if $global.path == 'plots'}
+        offset: { $offset }
+        {
+            /if}
+            { literal }
+        } {
+            /literal}
     </script>
 </head>
+
 <body>
     {include file="$main_content"}
 </body>
+
 </html>

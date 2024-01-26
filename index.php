@@ -15,6 +15,9 @@ DB::connect();
 Session::init();
 Route::init();
 
+// var_dump(Route::$path);
+// die();
+
 $g['path'] = Route::$path;
 HTML::assign('global', $g);
 HTML::display('./partials/index.html');

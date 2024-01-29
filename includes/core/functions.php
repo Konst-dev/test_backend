@@ -2,31 +2,48 @@
 
 // COMMON
 
-function init_classes() {
+function init_classes()
+{
     spl_autoload_register(function ($class_name) {
-        include './includes/core/class_'.strtolower($class_name).'.php';
+        include './includes/core/class_' . strtolower($class_name) . '.php';
     });
 }
 
-function init_controllers_common() {
+function init_controllers_common()
+{
     $includes_dir = opendir('./includes/controllers_common');
     while (($inc_file = readdir($includes_dir)) != false) {
-        if (strstr($inc_file, '.php')) require('./includes/controllers_common/'.$inc_file);
+        if (strstr($inc_file, '.php')) require('./includes/controllers_common/' . $inc_file);
     }
 }
 
-function init_controllers_call() {
+function init_controllers_call()
+{
     $includes_dir = opendir('./includes/controllers_call');
     while (($inc_file = readdir($includes_dir)) != false) {
-        if (strstr($inc_file, '.php')) require('./includes/controllers_call/'.$inc_file);
+        if (strstr($inc_file, '.php')) require('./includes/controllers_call/' . $inc_file);
     }
 }
 
-function flt_input($var) {
-    return str_replace(['\\', "\0", "'", '"', "\x1a", "\x00"], ['\\\\', '\\0', "\\'", '\\"', '\\Z', '\\Z'], $var);
+function flt_input($var)
+{
+    return str_replace_deep(['\\', "\0", "'", '"', "\x1a", "\x00"], ['\\\\', '\\0', "\\'", '\\"', '\\Z', '\\Z'], $var);
 }
 
-function generate_rand_str($length, $type = 'hexadecimal') {
+function str_replace_deep($search, $replace, $subject)
+{
+    if (is_array($subject)) {
+        foreach ($subject as &$oneSubject)
+            $oneSubject = str_replace_deep($search, $replace, $oneSubject);
+        unset($oneSubject);
+        return $subject;
+    } else {
+        return str_replace($search, $replace, $subject);
+    }
+}
+
+function generate_rand_str($length, $type = 'hexadecimal')
+{
     // vars
     $str = '';
     if ($type == 'decimal') $chars = '0123456789';
@@ -38,7 +55,7 @@ function generate_rand_str($length, $type = 'hexadecimal') {
         if ($type != 'password') {
             srand($microtime + $i);
             $size = strlen($chars);
-            $str .= $chars[rand(0, $size-1)];
+            $str .= $chars[rand(0, $size - 1)];
         } else {
             $l = rand(-3, -1);
             $sub = substr($str, $l);
@@ -47,31 +64,35 @@ function generate_rand_str($length, $type = 'hexadecimal') {
             else $chars_a = $chars[2];
             srand($microtime + $i);
             $size = strlen($chars_a);
-            $str .= $chars_a[rand(0, $size-1)];
+            $str .= $chars_a[rand(0, $size - 1)];
         }
     }
     // output
     return $str;
 }
 
-function error_response($code, $msg, $data = []) {
+function error_response($code, $msg, $data = [])
+{
     $result['error_code'] = $code;
     $result['error_msg'] = $msg;
     if ($data) $result['error_data'] = $data;
     return $result;
 }
 
-function dump($data = []) {
+function dump($data = [])
+{
     if (is_array($data)) $data = json_encode($data, JSON_UNESCAPED_UNICODE);
     error_log($data);
 }
 
-function phone_formatting($phone) {
+function phone_formatting($phone)
+{
     if (preg_match('~^[78]\d{10}$~', $phone)) $phone = preg_replace('~^([78])(\d{3})(\d{3})(\d{2})(\d{2})$~', '+$1 ($2) $3-$4-$5', $phone);
     return $phone;
 }
 
-function paginator($total, $offset, $q, $path, &$out) {
+function paginator($total, $offset, $q, $path, &$out)
+{
     if ($total > $q) {
         $m = 0;
         // digital links
@@ -81,28 +102,28 @@ function paginator($total, $offset, $q, $path, &$out) {
         if ($min < 0) $min = 0;
         else {
             if ($min >= 1) {
-                $out .= '<a href="/'.$path.'offset=0">1</a>';
+                $out .= '<a href="/' . $path . 'offset=0">1</a>';
                 if ($min != 1) $out .= '&nbsp;&nbsp;...&nbsp;&nbsp;';
             }
         }
         for ($i = $min; $i < $k; $i++) {
-            $m = $i*$q + $q;
+            $m = $i * $q + $q;
             if ($m > $total) $m = $total;
-            $out .= '<a href="/'.$path.'offset='.($i*$q).'">'.$m/$q.'</a>';
+            $out .= '<a href="/' . $path . 'offset=' . ($i * $q) . '">' . $m / $q . '</a>';
         }
         // # of current page
-        $out .= '<a href="#" class="active">'.(($m/$q)+1).'</a>';
+        $out .= '<a href="#" class="active">' . (($m / $q) + 1) . '</a>';
         // not more than 5 links to the right
         $min = $k + 2;
-        if ($min > ceil($total/$q)) $min = ceil($total/$q);
+        if ($min > ceil($total / $q)) $min = ceil($total / $q);
         for ($i = $k + 1; $i < $min; $i++) {
             $m = $i * $q + $q;
             if ($m > $total) $m = $total;
-            $out .= '<a href="/'.$path.'offset='.($i*$q).'">'.ceil($m/$q).'</a>';
+            $out .= '<a href="/' . $path . 'offset=' . ($i * $q) . '">' . ceil($m / $q) . '</a>';
         }
         if ($min * $q < $total) {
-            if ($min * $q < $total-$q) $out .= '&nbsp;&nbsp;...&nbsp;&nbsp;';
-            $out .= '<a href="/'.$path.'offset='.(($total-1)-($total-1)%$q).'">'.ceil($total/$q).'</a>';
+            if ($min * $q < $total - $q) $out .= '&nbsp;&nbsp;...&nbsp;&nbsp;';
+            $out .= '<a href="/' . $path . 'offset=' . (($total - 1) - ($total - 1) % $q) . '">' . ceil($total / $q) . '</a>';
         }
     }
 }

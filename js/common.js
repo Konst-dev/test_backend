@@ -83,15 +83,15 @@ let common = {
 
     auth_send: () => {
         // vars
-        let data = {phone: gv('phone')};
-        let location = {dpt: 'auth', act: 'send'};
+        let data = { phone: gv('phone') };
+        let location = { dpt: 'auth', act: 'send' };
         // call
-        request({location: location, data: data}, (result) => {
+        request({ location: location, data: data }, (result) => {
             if (result.error_msg) {
                 html('login_note', result.error_msg);
                 remove_class('login_note', 'fade');
-                setTimeout(function() { add_class('login_note', 'fade'); }, 3000);
-                setTimeout(function() { html('login_note', ''); }, 3500);
+                setTimeout(function () { add_class('login_note', 'fade'); }, 3000);
+                setTimeout(function () { html('login_note', ''); }, 3500);
             } else html(qs('body'), result.html);
         });
     },
@@ -105,8 +105,8 @@ let common = {
             if (result.error_msg) {
                 html('login_note', result.error_msg);
                 remove_class('login_note', 'fade');
-                setTimeout(function() { add_class('login_note', 'fade'); }, 3000);
-                setTimeout(function() { html('login_note', ''); }, 3500);
+                setTimeout(function () { add_class('login_note', 'fade'); }, 3000);
+                setTimeout(function () { html('login_note', ''); }, 3500);
             } else window.location = window.location.href;
         });
     },
@@ -118,7 +118,7 @@ let common = {
         let data = { search: gv('search') };
         let location = { dpt: 'search', act: act };
         // call
-        request({location: location, data: data}, (result) => {
+        request({ location: location, data: data }, (result) => {
             html('table', result.html);
             html('paginator', result.paginator);
         });
@@ -131,12 +131,43 @@ let common = {
         cancel_event(e);
         common.menu_popup_hide_all('all');
         // vars
-        let data = {plot_id: plot_id};
-        let location = {dpt: 'plot', act: 'edit_window'};
+        let data = { plot_id: plot_id };
+        let location = { dpt: 'plot', act: 'edit_window' };
         // call
-        request({location: location, data: data}, (result) => {
+        request({ location: location, data: data }, (result) => {
             common.modal_show(400, result.html);
         });
+    },
+
+    user_edit_window: (user_id, e) => {
+        // actions
+        cancel_event(e);
+        common.menu_popup_hide_all('all');
+        // vars
+        let data = { user_id: user_id };
+        let location = { dpt: 'user', act: 'edit_window' };
+        // call
+        request({ location: location, data: data }, (result) => {
+            common.modal_show(400, result.html);
+        });
+    },
+
+    user_delete: (user_id, e) => {
+        // actions
+        cancel_event(e);
+        common.menu_popup_hide_all('all');
+        // vars
+        if (confirm('Are you sure you want to delete user with id #' + user_id + '?')) {
+            let data = { user_id: user_id, offset: global.offset };
+            let location = { dpt: 'user', act: 'delete_user' };
+            // call
+            request({ location: location, data: data }, (result) => {
+                if (result['status'] !== 'error')
+                    html('table', result.html);
+                else console.log('Error!');
+            });
+        }
+
     },
 
     plot_edit_update: (plot_id = 0) => {
@@ -150,11 +181,81 @@ let common = {
             price: gv('price'),
             offset: global.offset
         };
-        let location = {dpt: 'plot', act: 'edit_update'};
+        let location = { dpt: 'plot', act: 'edit_update' };
         // call
-        request({location: location, data: data}, (result) => {
+        request({ location: location, data: data }, (result) => {
             common.modal_hide();
             html('table', result.html);
+        });
+    },
+
+
+    user_edit_update: (user_id = 0) => {
+        let elem = ge('plots');
+        let plots = [];
+        for (var i = 0; i < elem.childNodes.length; i++) {
+            if (elem.childNodes[i].tagName == "OPTION" && elem.childNodes[i].selected) plots.push(elem.childNodes[i].value);
+        }
+        let data = {
+            user_id: user_id,
+            first_name: gv('first_name'),
+            last_name: gv('last_name'),
+            phone: gv('phone_str'),
+            email: gv('email'),
+            plots: plots,
+            offset: global.offset
+        };
+
+
+        let location = { dpt: 'user', act: 'verify_data' };
+        request({ location: location, data: data }, (result) => {
+            let data_status = JSON.parse(result);
+            if (data_status['first_name'] && data_status['last_name'] && data_status['phone'] && data_status['email']) {
+                let location = { dpt: 'user', act: 'edit_update' };
+                request({ location: location, data: data }, (result) => {
+                    common.modal_hide();
+                    html('table', result.html);
+                });
+            }
+            else {
+                let el = ge('first_name');
+                if (!data_status['first_name']) {
+                    el.parentElement.firstElementChild.style.color = '#ff0000';
+                    el.className = 'error';
+                }
+                else {
+                    el.parentElement.firstElementChild.style.color = '#53565E';
+                    el.className = '';
+                }
+                el = ge('last_name');
+                if (!data_status['last_name']) {
+                    el.parentElement.firstElementChild.style.color = '#ff0000';
+                    el.className = 'error';
+                }
+                else {
+                    el.parentElement.firstElementChild.style.color = '#53565E';
+                    el.className = '';
+                }
+                el = ge('phone_str');
+                if (!data_status['phone']) {
+                    el.parentElement.firstElementChild.style.color = '#ff0000';
+                    el.className = 'error';
+                }
+                else {
+                    el.parentElement.firstElementChild.style.color = '#53565E';
+                    el.className = '';
+                }
+                el = ge('email');
+                if (!data_status['email']) {
+                    el.parentElement.firstElementChild.style.color = '#ff0000';
+                    el.className = 'error';
+                }
+                else {
+                    el.parentElement.firstElementChild.style.color = '#53565E';
+                    el.className = '';
+                }
+
+            }
         });
     },
 }

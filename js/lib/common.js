@@ -91,18 +91,21 @@ function set_style(el, name, value) {
 // REQUESTS
 
 function request(data, callback) {
-    console.log(data);
+    //console.log(data);
     let xhr = new XMLHttpRequest();
     if (!xhr) return;
     xhr.open('POST', '/call.php', true);
     xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
     xhr.send(request_serialize(data));
+
     xhr.onreadystatechange = () => {
         if (xhr.readyState !== 4) return;
         if (xhr.status === 200) callback(JSON.parse(xhr.responseText));
         xhr = null;
     }
 }
+
+
 
 function request_serialize(data, prefix) {
     // vars

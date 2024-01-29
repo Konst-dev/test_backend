@@ -2,12 +2,10 @@
 
 function controller_users()
 {
-    // var_dump(User::users_list(['search' => 'Car']));
     // vars
     $offset = isset($_GET['offset']) ? flt_input($_GET['offset']) : 0;
     $search = $_GET['search'] ?? '';
     // info
-    //$users = User::users_list(['search' => '']);
     $users = User::users_list(['mode' => 'page', 'offset' => $offset, 'search' => $search]);
     // output
     HTML::assign('users', $users['items']);

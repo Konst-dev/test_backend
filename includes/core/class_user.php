@@ -128,7 +128,7 @@ class User
         while ($row = DB::fetch_row($q)) {
             $items[] = [
                 'id' => (int) $row['user_id'],
-                'numbers' => self::user_plot_numbers($row['plot_id']),
+                'numbers' => $row['plot_id'],
                 'first_name' => $row['first_name'],
                 'last_name' => $row['last_name'],
                 'email' => $row['email'],
@@ -144,26 +144,6 @@ class User
         paginator($count, $offset, $limit, $url, $paginator);
         // output
         return ['items' => $items, 'paginator' => $paginator];
-    }
-
-    private static function user_plot_numbers($str)
-    {
-
-        if ($str) {
-            $plot_ids = explode(',', $str);
-            $where = [];
-            $items = [];
-            foreach ($plot_ids as $id)
-                $where[] = 'plot_id=' . $id;
-            $where = $where ? "WHERE " . implode(" OR ", $where) : '';
-
-            $q = DB::query("SELECT number FROM plots " . $where . " ORDER BY `number`;") or die(DB::error());
-            while ($row = DB::fetch_row($q)) {
-                $items[] = $row['number'];
-            }
-
-            return implode(',', $items);
-        } else return '';
     }
 
     public static function users_fetch($d = [])

@@ -48,8 +48,6 @@ class User
             foreach ($plot_ids as $id)
                 $where[] = 'plot_id=' . $id;
             $where = $where ? "WHERE " . implode(" OR ", $where) : '';
-            //var_dump("SELECT plot_id, number, size, price FROM plots " . $where . " ORDER BY number;");
-            //die();
             $q = DB::query("SELECT plot_id, number, size, price FROM plots " . $where . " ORDER BY `number`;") or die(DB::error());
             while ($row = DB::fetch_row($q)) {
                 $plots[] = [
@@ -130,7 +128,7 @@ class User
         while ($row = DB::fetch_row($q)) {
             $items[] = [
                 'id' => (int) $row['user_id'],
-                'plot_id' => $row['plot_id'],
+                'numbers' => self::user_plot_numbers($row['plot_id']),
                 'first_name' => $row['first_name'],
                 'last_name' => $row['last_name'],
                 'email' => $row['email'],
@@ -138,7 +136,6 @@ class User
                 'last_login' => date('Y-m-d h:i:s', $row['last_login']),
             ];
         }
-        //return $items;
         // paginator
         $q = DB::query("SELECT count(*) FROM users " . $where . ";");
         $count = ($row = DB::fetch_row($q)) ? $row['count(*)'] : 0;
@@ -147,6 +144,26 @@ class User
         paginator($count, $offset, $limit, $url, $paginator);
         // output
         return ['items' => $items, 'paginator' => $paginator];
+    }
+
+    private static function user_plot_numbers($str)
+    {
+
+        if ($str) {
+            $plot_ids = explode(',', $str);
+            $where = [];
+            $items = [];
+            foreach ($plot_ids as $id)
+                $where[] = 'plot_id=' . $id;
+            $where = $where ? "WHERE " . implode(" OR ", $where) : '';
+
+            $q = DB::query("SELECT number FROM plots " . $where . " ORDER BY `number`;") or die(DB::error());
+            while ($row = DB::fetch_row($q)) {
+                $items[] = $row['number'];
+            }
+
+            return implode(',', $items);
+        } else return '';
     }
 
     public static function users_fetch($d = [])
@@ -158,8 +175,6 @@ class User
 
     public static function user_edit_window($d = [])
     {
-        // var_dump(User::user_full_info(1));
-        // die();
         $user_id = isset($d['user_id']) && is_numeric($d['user_id']) ? $d['user_id'] : 0;
         $user = User::user_full_info($user_id);
         $plots = $user['plots'];
@@ -182,8 +197,6 @@ class User
 
     public static function user_edit_update($d = [])
     {
-        //var_dump($d);
-        // vars
         $user_id = isset($d['user_id']) && is_numeric($d['user_id']) ? $d['user_id'] : 0;
         $first_name = isset($d['first_name']) && trim($d['first_name']) ? trim($d['first_name']) : '';
         $last_name = isset($d['last_name']) && trim($d['last_name']) ? trim($d['last_name']) : '';
@@ -238,7 +251,6 @@ class User
 
     public static function verify_user_data($d = [])
     {
-        // var_dump($d);
         $response = [];
         $first_name = isset($d['first_name']) && trim($d['first_name']) ? trim($d['first_name']) : '';
         $last_name = isset($d['last_name']) && trim($d['last_name']) ? trim($d['last_name']) : '';

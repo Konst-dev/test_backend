@@ -1,6 +1,6 @@
 <table>
     <tr>
-        <th>Plot ID</th>
+        <th>Plot Numbers</th>
         <th>Name</th>
         <th>Phone</th>
         <th>Email</th>
@@ -9,7 +9,7 @@
     </tr>
     {section name=i loop=$users}
     <tr>
-        <td>{$users[i].plot_id}</td>
+        <td>{$users[i].numbers}</td>
         <td>{$users[i].first_name} {$users[i].last_name}</td>
         <td>{$users[i].phone_str}</td>
         <td>{$users[i].email}</td>
